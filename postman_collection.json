@@ -131,8 +131,17 @@
 						"auth": {
 							"type": "noauth"
 						},
-						"method": "GET",
+						"method": "PUT",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Rodrigo Danna\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://localhost:3001/user/63eed557-d257-43c0-87bf-eb38d9225381",
 							"protocol": "http",
@@ -143,6 +152,207 @@
 							"path": [
 								"user",
 								"63eed557-d257-43c0-87bf-eb38d9225381"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userId\": \"63eed557-d257-43c0-87bf-eb38d9225381\",\r\n  \"title\": \"Task 3\",\r\n  \"deadline\": \"2025-06-25T00:00:00.000Z\",\r\n  \"priority\": \"alta\" // BAIXA, MEDIA, ALTA\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/tasks?userdId=63eed557-d257-43c0-87bf-eb38d9225381",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "userdId",
+									"value": "63eed557-d257-43c0-87bf-eb38d9225381"
+								},
+								{
+									"key": "status",
+									"value": "pendente",
+									"disabled": true
+								},
+								{
+									"key": "priority",
+									"value": "alta",
+									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "createdAt",
+									"disabled": true
+								},
+								{
+									"key": "order",
+									"value": "asc",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find One",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks",
+								"e0800794-b408-4b20-a3e8-533920c0382b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"priority\": \"media\" // BAIXA, MEDIA, ALTA\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks",
+								"e0800794-b408-4b20-a3e8-533920c0382b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks",
+								"e0800794-b408-4b20-a3e8-533920c0382b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Complete",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b/complete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks",
+								"e0800794-b408-4b20-a3e8-533920c0382b",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Complete",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b/complete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"tasks",
+								"e0800794-b408-4b20-a3e8-533920c0382b",
+								"complete"
 							]
 						}
 					},
