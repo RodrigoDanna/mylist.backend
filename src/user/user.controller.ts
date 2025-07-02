@@ -16,11 +16,6 @@ export class UserController {
     return this.userService.login(loginUserDto);
   }
 
-  @Post('logout')
-  logout() {
-    return this.userService.logout();
-  }
-
   @Get(':id')
   getUser(@Param('id') id: string) {
     return this.userService.getUserById(id);
@@ -29,5 +24,10 @@ export class UserController {
   @Put(':id')
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateUser(id, updateUserDto);
+  }
+
+  @Post('recover/:email')
+  async recoverPassword(@Param('email') email: string) {
+    return this.userService.recoverPassword(email);
   }
 }
