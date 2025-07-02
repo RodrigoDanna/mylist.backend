@@ -8,6 +8,16 @@ export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateTaskDto): Promise<Task> {
+    if (data.deadline) {
+      // Check for yyyy-mm-dd pattern
+      const yyyymmdd = /^(\d{4})-(\d{2})-(\d{2})$/;
+      if (typeof data.deadline === 'string' && yyyymmdd.test(data.deadline)) {
+        // Convert to ISO string
+        data.deadline = new Date(`${String(data.deadline)}T00:00:00Z`);
+      }
+    } else {
+      delete data.deadline;
+    }
     return await this.prisma.task.create({ data });
   }
 
@@ -20,9 +30,7 @@ export class TasksService {
   }): Promise<Task[]> {
     const {
       userId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       status,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       priority,
       orderBy = 'createdAt',
       order = 'desc',
@@ -30,9 +38,7 @@ export class TasksService {
 
     const where: Prisma.TaskWhereInput = {
       userId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       status,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       priority,
     };
 
@@ -40,18 +46,15 @@ export class TasksService {
       [orderBy]: order,
     };
 
-    const result = (await this.prisma.task.findMany({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const result = await this.prisma.task.findMany({
       where,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       orderBy: orderByClause,
-    })) as Task[];
+    });
 
     return result;
   }
 
   async findOne(id: string): Promise<Task> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const task = await this.prisma.task.findUnique({ where: { id } });
 
     if (!task) {
