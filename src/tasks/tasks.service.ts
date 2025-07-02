@@ -90,12 +90,4 @@ export class TasksService {
     await this.findOne(id);
     return this.prisma.task.delete({ where: { id } });
   }
-
-  async markAsComplete(id: string): Promise<Task> {
-    await this.findOne(id);
-    return this.prisma.task.update({
-      where: { id },
-      data: { status: 'concluida' },
-    });
-  }
 }

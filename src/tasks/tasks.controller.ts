@@ -6,7 +6,6 @@ import {
   Param,
   Put,
   Delete,
-  Patch,
   Query,
   Req,
   UseGuards,
@@ -57,11 +56,5 @@ export class TasksController {
   @UseGuards(AuthGuard('jwt'))
   remove(@Param('id') id: string) {
     return this.tasksService.remove(id);
-  }
-
-  @Patch(':id/complete')
-  @UseGuards(AuthGuard('jwt'))
-  complete(@Param('id') id: string) {
-    return this.tasksService.markAsComplete(id);
   }
 }
