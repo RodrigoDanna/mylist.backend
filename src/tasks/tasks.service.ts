@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto, UpdateTaskDto } from './tasks.dto';
 import { Task, Prisma, TaskPriority, TaskStatus } from '@prisma/client';
@@ -7,17 +11,26 @@ import { Task, Prisma, TaskPriority, TaskStatus } from '@prisma/client';
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateTaskDto): Promise<Task> {
+  private normalizeDeadline(data: { deadline?: string | Date }) {
     if (data.deadline) {
-      // Check for yyyy-mm-dd pattern
       const yyyymmdd = /^(\d{4})-(\d{2})-(\d{2})$/;
       if (typeof data.deadline === 'string' && yyyymmdd.test(data.deadline)) {
-        // Convert to ISO string
         data.deadline = new Date(`${String(data.deadline)}T00:00:00Z`);
       }
     } else {
       delete data.deadline;
     }
+  }
+
+  async create(data: CreateTaskDto): Promise<Task> {
+    if (
+      !data.title ||
+      typeof data.title !== 'string' ||
+      data.title.trim() === ''
+    ) {
+      throw new BadRequestException('O título é obrigatório');
+    }
+    this.normalizeDeadline(data);
     return await this.prisma.task.create({ data });
   }
 
@@ -66,6 +79,7 @@ export class TasksService {
 
   async update(id: string, data: UpdateTaskDto): Promise<Task> {
     await this.findOne(id);
+    this.normalizeDeadline(data);
     return this.prisma.task.update({
       where: { id },
       data,
