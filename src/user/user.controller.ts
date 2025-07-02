@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Patch,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, LoginUserDto } from './user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
 export class UserController {
@@ -16,18 +25,18 @@ export class UserController {
     return this.userService.login(loginUserDto);
   }
 
-  @Get(':id')
-  getUser(@Param('id') id: string) {
-    return this.userService.getUserById(id);
-  }
-
-  @Put(':id')
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.updateUser(id, updateUserDto);
-  }
-
   @Post('recover/:email')
   async recoverPassword(@Param('email') email: string) {
     return this.userService.recoverPassword(email);
+  }
+
+  @Patch('change-password')
+  @UseGuards(AuthGuard('jwt'))
+  async changePassword(
+    @Req() req: { user: { sub: string } },
+    @Body()
+    body: { currentPassword: string; password: string; repeatPassword: string },
+  ) {
+    return this.userService.changePassword(req.user.sub, body);
   }
 }

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@prisma/client';
-import { CreateUserDto, LoginUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, LoginUserDto } from './user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import * as nodemailer from 'nodemailer';
@@ -23,6 +23,13 @@ export class UserService {
     // Check if passwords match
     if (data.password !== data.repeatPassword) {
       throw new BadRequestException('As senhas devem ser iguais');
+    }
+
+    // Check password length
+    if (data.password.length < 6) {
+      throw new BadRequestException(
+        'A nova senha deve ter pelo menos 6 caracteres',
+      );
     }
 
     // Check if email already exists
@@ -65,41 +72,6 @@ export class UserService {
     const token = await this.jwtService.signAsync(payload);
 
     return token;
-  }
-
-  async getUserById(id: string): Promise<Omit<User, 'password'>> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-
-    return result;
-  }
-
-  async updateUser(
-    id: string,
-    data: UpdateUserDto,
-  ): Promise<Omit<User, 'password'>> {
-    const updateData = { ...data };
-    if (data.password) {
-      updateData.password = await bcrypt.hash(data.password, 10);
-    }
-
-    const user = await this.prisma.user.update({
-      where: { id },
-      data: updateData,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-
-    return result;
   }
 
   async recoverPassword(email: string): Promise<{ message: string }> {
@@ -163,5 +135,61 @@ export class UserService {
     }
 
     return { message: 'Uma nova senha foi enviada para o seu e-mail' };
+  }
+
+  async changePassword(
+    id: string,
+    body: { currentPassword: string; password: string; repeatPassword: string },
+  ): Promise<{ message: string }> {
+    const { currentPassword, password, repeatPassword } = body;
+
+    if (!currentPassword) {
+      throw new BadRequestException('O campo senha atual é obrigatório');
+    }
+    if (!password) {
+      throw new BadRequestException('O campo nova senha é obrigatório');
+    }
+    if (!repeatPassword) {
+      throw new BadRequestException('O campo repetir nova senha é obrigatório');
+    }
+
+    if (password !== repeatPassword) {
+      throw new BadRequestException('As senhas devem ser iguais');
+    }
+
+    if (password.length < 6) {
+      throw new BadRequestException(
+        'A nova senha deve ter pelo menos 6 caracteres',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const isCurrentValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isCurrentValid) {
+      throw new BadRequestException('Senha atual incorreta');
+    }
+
+    if (await bcrypt.compare(password, user.password)) {
+      throw new BadRequestException(
+        'A nova senha não pode ser igual à senha atual',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Senha alterada com sucesso' };
   }
 }
