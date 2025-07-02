@@ -9,7 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'mysecret',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '1y' },
     }),
   ],
   providers: [UserService, PrismaService, JwtStrategy],
