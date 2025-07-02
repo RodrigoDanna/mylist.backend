@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@prisma/client';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './user.dto';
@@ -13,8 +17,18 @@ export class UserService {
   ) {}
 
   async register(data: CreateUserDto): Promise<User> {
+    // Check if passwords match
     if (data.password !== data.repeatPassword) {
-      throw new Error('Senhas deve ser iguais');
+      throw new BadRequestException('As senhas devem ser iguais');
+    }
+
+    // Check if email already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('E-mail já cadastrado');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -35,13 +49,13 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('Usuário e/ou senha inválidos');
     }
 
     const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
-      throw new NotFoundException('Senha inválida');
+      throw new NotFoundException('Usuário e/ou senha inválidos');
     }
 
     const payload = { sub: user.id, email: user.email };
