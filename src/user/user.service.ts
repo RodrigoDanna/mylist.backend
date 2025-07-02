@@ -13,11 +13,15 @@ export class UserService {
   ) {}
 
   async register(data: CreateUserDto): Promise<User> {
+    if (data.password !== data.repeatPassword) {
+      throw new Error('Senhas deve ser iguais');
+    }
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await this.prisma.user.create({
       data: {
-        ...data,
+        email: data.email,
         password: hashedPassword,
       },
     });
