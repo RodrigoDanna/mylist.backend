@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Rodrigo Danna\",\r\n  \"email\": \"rrdanna@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+							"raw": "{\r\n  \"email\": \"rrdanna@gmail.com\",\r\n  \"password\": \"1234561\",\r\n  \"repeatPassword\": \"123456\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -71,7 +71,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout",
+					"name": "Recover Password",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -88,7 +88,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3001/user/logout",
+							"raw": "http://localhost:3001/user/recover/rrdanna@gmail.com",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -96,46 +96,31 @@
 							"port": "3001",
 							"path": [
 								"user",
-								"logout"
+								"recover",
+								"rrdanna@gmail.com"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Get User",
+					"name": "Change Password",
 					"request": {
 						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/user/63eed557-d257-43c0-87bf-eb38d9225381",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"user",
-								"63eed557-d257-43c0-87bf-eb38d9225381"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2M2VlZDU1Ny1kMjU3LTQzYzAtODdiZi1lYjM4ZDkyMjUzODEiLCJlbWFpbCI6InJyZGFubmFAZ21haWwuY29tIiwiaWF0IjoxNzUxNDY4MDI4LCJleHAiOjE3NTE0NzE2Mjh9.J8vaGLPB4y_3sIprw8jcXQnJRzvkxxHcQGebtSxQKMs",
+									"type": "string"
+								}
 							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update User",
-					"request": {
-						"auth": {
-							"type": "noauth"
 						},
-						"method": "PUT",
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Rodrigo Danna\"\r\n}",
+							"raw": "{\r\n    \"currentPassword\": \"123456\",\r\n    \"password\": \"123456\",\r\n    \"repeatPassword\": \"123456\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,7 +128,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3001/user/63eed557-d257-43c0-87bf-eb38d9225381",
+							"raw": "http://localhost:3001/user/change-password",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -151,7 +136,46 @@
 							"port": "3001",
 							"path": [
 								"user",
-								"63eed557-d257-43c0-87bf-eb38d9225381"
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2M2VlZDU1Ny1kMjU3LTQzYzAtODdiZi1lYjM4ZDkyMjUzODEiLCJlbWFpbCI6InJyZGFubmFAZ21haWwuY29tIiwiaWF0IjoxNzUxNDY4MDI4LCJleHAiOjE3NTE0NzE2Mjh9.J8vaGLPB4y_3sIprw8jcXQnJRzvkxxHcQGebtSxQKMs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"currentPassword\": \"123456\",\r\n    \"password\": \"123456\",\r\n    \"repeatPassword\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/user/change-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"user",
+								"change-password"
 							]
 						}
 					},
@@ -165,11 +189,21 @@
 				{
 					"name": "Create",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2M2VlZDU1Ny1kMjU3LTQzYzAtODdiZi1lYjM4ZDkyMjUzODEiLCJlbWFpbCI6InJyZGFubmFAZ21haWwuY29tIiwiaWF0IjoxNzUxNDY4MDI4LCJleHAiOjE3NTE0NzE2Mjh9.J8vaGLPB4y_3sIprw8jcXQnJRzvkxxHcQGebtSxQKMs",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"userId\": \"63eed557-d257-43c0-87bf-eb38d9225381\",\r\n  \"title\": \"Task 3\",\r\n  \"deadline\": \"2025-06-25T00:00:00.000Z\",\r\n  \"priority\": \"alta\" // BAIXA, MEDIA, ALTA\r\n}",
+							"raw": "{\r\n  \"title\": \"Task 3\",\r\n  \"deadline\": \"2025-06-25T00:00:00.000Z\",\r\n  \"priority\": \"alta\" // BAIXA, MEDIA, ALTA\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -193,10 +227,20 @@
 				{
 					"name": "Find All",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2M2VlZDU1Ny1kMjU3LTQzYzAtODdiZi1lYjM4ZDkyMjUzODEiLCJlbWFpbCI6InJyZGFubmFAZ21haWwuY29tIiwiaWF0IjoxNzUxNDY4MDI4LCJleHAiOjE3NTE0NzE2Mjh9.J8vaGLPB4y_3sIprw8jcXQnJRzvkxxHcQGebtSxQKMs",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/tasks?userdId=63eed557-d257-43c0-87bf-eb38d9225381",
+							"raw": "http://localhost:3001/tasks",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -206,10 +250,6 @@
 								"tasks"
 							],
 							"query": [
-								{
-									"key": "userdId",
-									"value": "63eed557-d257-43c0-87bf-eb38d9225381"
-								},
 								{
 									"key": "status",
 									"value": "pendente",
@@ -311,48 +351,6 @@
 							"path": [
 								"tasks",
 								"e0800794-b408-4b20-a3e8-533920c0382b"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Complete",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b/complete",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"tasks",
-								"e0800794-b408-4b20-a3e8-533920c0382b",
-								"complete"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Complete",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/tasks/e0800794-b408-4b20-a3e8-533920c0382b/complete",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"tasks",
-								"e0800794-b408-4b20-a3e8-533920c0382b",
-								"complete"
 							]
 						}
 					},
