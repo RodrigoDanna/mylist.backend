@@ -15,7 +15,6 @@ const mockPrismaService = {
     update: jest.fn(),
   },
 };
-
 const mockJwtService = {
   signAsync: jest.fn(),
 };
@@ -107,10 +106,16 @@ describe('UserService', () => {
         email: 'a@a.com',
         password: 'hashed',
       });
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      (bcrypt.compare as jest.Mock).mockImplementation((plain, hash) => {
+        if (plain === 'wrong' && hash === 'hashed') {
+          return false;
+        }
+        return true;
+      });
       await expect(
         service.login({ email: 'a@a.com', password: 'wrong' }),
       ).rejects.toThrow(NotFoundException);
+      expect(bcrypt.compare).toHaveBeenCalledWith('wrong', 'hashed');
     });
 
     it('should return token if valid', async () => {
@@ -130,6 +135,55 @@ describe('UserService', () => {
   });
 
   describe('recoverPassword', () => {
+    it('should use default SMTP host and port if not set in env', async () => {
+      delete process.env.SMTP_HOST;
+      delete process.env.SMTP_PORT;
+      prisma.user.findUnique.mockResolvedValueOnce(mockUser);
+      prisma.user.update.mockResolvedValueOnce({ ...mockUser });
+      (bcrypt.hash as jest.Mock).mockResolvedValue('newhashed');
+      const mockTransporterDefault = {
+        verify: jest.fn().mockResolvedValue(true),
+        sendMail: jest.fn().mockResolvedValue(true),
+      };
+      const createTransportSpy = jest
+        .spyOn(nodemailer, 'createTransport')
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        .mockReturnValue(mockTransporterDefault as any);
+      await service.recoverPassword('a@a.com');
+      expect(createTransportSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          host: 'localhost',
+          port: 1025,
+        }),
+      );
+      createTransportSpy.mockRestore();
+    });
+    it('should use SMTP auth if SMTP_USER and SMTP_PASS are set', async () => {
+      prisma.user.findUnique.mockResolvedValueOnce(mockUser);
+      prisma.user.update.mockResolvedValueOnce({ ...mockUser });
+      (bcrypt.hash as jest.Mock).mockResolvedValue('newhashed');
+      process.env.SMTP_USER = 'user@example.com';
+      process.env.SMTP_PASS = 'pass123';
+      process.env.SMTP_HOST = 'smtp.example.com';
+      const mockTransporterWithAuth = {
+        verify: jest.fn().mockResolvedValue(true),
+        sendMail: jest.fn().mockResolvedValue(true),
+      };
+      const createTransportSpy = jest
+        .spyOn(nodemailer, 'createTransport')
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        .mockReturnValue(mockTransporterWithAuth as any);
+      await service.recoverPassword('a@a.com');
+      expect(createTransportSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auth: {
+            user: 'user@example.com',
+            pass: 'pass123',
+          },
+        }),
+      );
+      createTransportSpy.mockRestore();
+    });
     const mockUser = { id: '1', email: 'a@a.com', password: 'hashed' };
     let originalEnv: NodeJS.ProcessEnv;
     let mockTransporter: any;
@@ -143,6 +197,7 @@ describe('UserService', () => {
       };
       jest
         .spyOn(nodemailer, 'createTransport')
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         .mockReturnValue(mockTransporter);
     });
 
@@ -263,10 +318,10 @@ describe('UserService', () => {
       await expect(
         service.changePassword('1', {
           currentPassword: 'old',
-          password: 'same',
-          repeatPassword: 'same',
+          password: 'samepass',
+          repeatPassword: 'samepass',
         }),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow('A nova senha não pode ser igual à senha atual');
     });
     it('should update password if valid', async () => {
       prisma.user.findUnique.mockResolvedValueOnce(mockUser);

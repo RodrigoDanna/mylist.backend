@@ -54,6 +54,33 @@ describe('TasksService', () => {
         BadRequestException,
       );
     });
+
+    it('should normalize deadline if string in yyyy-mm-dd', async () => {
+      const dto = {
+        title: 'Test Task',
+        userId: 'user1',
+        priority: TaskPriority.alta,
+        deadline: '2025-07-03',
+      };
+      prisma.task.create = jest.fn().mockResolvedValue(mockTask);
+      await service.create(dto as any);
+      expect(
+        (prisma.task.create as jest.Mock).mock.calls[0][0].data.deadline,
+      ).toBeInstanceOf(Date);
+    });
+
+    it('should remove deadline if not provided', async () => {
+      const dto = {
+        title: 'Test Task',
+        userId: 'user1',
+        priority: TaskPriority.alta,
+      };
+      prisma.task.create = jest.fn().mockResolvedValue(mockTask);
+      await service.create(dto as any);
+      expect(
+        'deadline' in (prisma.task.create as jest.Mock).mock.calls[0][0].data,
+      ).toBe(false);
+    });
   });
 
   describe('findAll', () => {
@@ -81,11 +108,31 @@ describe('TasksService', () => {
   describe('update', () => {
     it('should update a task', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockTask);
-      await expect(
-        service.update('1', { title: 'Updated' } as any),
-      ).resolves.toEqual(mockTask);
+      await expect(service.update('1', { title: 'Updated' })).resolves.toEqual(
+        mockTask,
+      );
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(prisma.task.update).toHaveBeenCalled();
+    });
+
+    it('should normalize deadline if string in yyyy-mm-dd', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockTask);
+      const dto = { deadline: '2025-07-03' };
+      prisma.task.update = jest.fn().mockResolvedValue(mockTask);
+      await service.update('1', dto as any);
+      expect(
+        (prisma.task.update as jest.Mock).mock.calls[0][0].data.deadline,
+      ).toBeInstanceOf(Date);
+    });
+
+    it('should remove deadline if not provided', async () => {
+      jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockTask);
+      const dto = {};
+      prisma.task.update = jest.fn().mockResolvedValue(mockTask);
+      await service.update('1', dto as any);
+      expect(
+        'deadline' in (prisma.task.update as jest.Mock).mock.calls[0][0].data,
+      ).toBe(false);
     });
   });
 
