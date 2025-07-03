@@ -8,7 +8,7 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET || 'mysecret',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1y' },
     }),
   ],
