@@ -1,8 +1,8 @@
 {
   "name": "mylist.backend",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
-  "author": "",
+  "author": "Rodrigo R. Danna",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
